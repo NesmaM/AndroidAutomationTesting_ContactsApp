@@ -1,0 +1,91 @@
+package com.appiumTest;
+
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.MobileElement;
+import java.net.URL;
+
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+
+public class AppiumDemo2 {
+	public static AppiumDriver<MobileElement> driver;
+
+	@Before
+	public void SetUp() throws Exception {
+		DesiredCapabilities caps = new DesiredCapabilities();
+		caps.setCapability("platformName", "android");
+		caps.setCapability("automationName", "UIAutomator2");
+		caps.setCapability("platformVersion", "11");
+		caps.setCapability("deviceName", "pixel-4");
+		// caps.setCapability("udid", "emulator-5554");
+		caps.setCapability("appPackage", "com.android.contacts");
+		caps.setCapability("appActivity", "com.android.contacts.activities.PeopleActivity");
+
+		// hide keyboard
+		caps.setCapability("unicodeKeyboard", true);
+		caps.setCapability("resetKeyboard", true);
+
+		URL url;
+		url = new URL("http://127.0.0.1:4723/wd/hub/");
+		driver = new AppiumDriver<MobileElement>(url, caps);
+
+	}
+
+	@After
+	public void tearDown() {
+		if (driver != null) {
+			driver.quit();
+		}
+	}
+
+	@Test
+	public void appiumTest1() {
+
+		WebDriverWait wait = new WebDriverWait(driver, 20);
+
+		// add a new contact button
+		WebElement addContactButton = driver.findElementById("com.android.contacts:id/floating_action_button");
+		addContactButton.click();
+		// add some wait
+		wait.until(ExpectedConditions.presenceOfElementLocated(By.id("com.android.contacts:id/left_button")));
+
+		// Click the Cancel button
+		WebElement cancelAddingAccountButton = driver.findElementById("com.android.contacts:id/left_button");
+		cancelAddingAccountButton.click();
+
+		// add some wait
+		wait.until(ExpectedConditions
+				.presenceOfElementLocated(By.xpath("//android.widget.EditText[@text=\"First name\"]")));
+
+		// click and enter the data for first name
+		WebElement firstNameEditBox = driver.findElementByXPath("//android.widget.EditText[@text=\"First name\"]");
+		firstNameEditBox.sendKeys("Maria");
+
+		// click and enter the data for last name
+		WebElement lastNameEditBox = driver.findElementByXPath("//android.widget.EditText[@text=\"Last name\"]");
+		lastNameEditBox.sendKeys("Fred");
+
+		// click and enter the data for Phone
+		WebElement phoneEditBox = driver.findElementByXPath("//android.widget.EditText[@text=\"Phone\"]");
+		phoneEditBox.sendKeys("2393930421");
+
+		// click Save button
+		WebElement saveButton = driver.findElementById("com.android.contacts:id/editor_menu_save_button");
+		saveButton.click();
+
+		// Contact Saved view
+		WebElement contactIcon = wait
+				.until(ExpectedConditions.presenceOfElementLocated(By.id("com.android.contacts:id/large_title")));
+		assert (contactIcon.getText().contains("Fred"));
+
+	}
+
+}
